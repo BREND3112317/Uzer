@@ -1,21 +1,11 @@
-import express from 'express';
-import path from 'path';
-import dotenv from 'dotenv';
+import {App} from './app';
+import { DefaultException } from './exceptions/default.exception';
 
-const app = express();
+const bootstrap = () => {
+    const app = new App();
+    app.setException(DefaultException);
+    app.launchDatabase();
+    app.bootstrap();
+}
 
-dotenv.config({
-    path: path.resolve(
-        __dirname, 
-        `./environments/${process.env.NODE_ENV}.env`
-    )
-});
-
-app.get('/', (req, res, next) => {
-    res.send("Hello");
-});
-
-app.listen(process.env.PORT, () => {
-    console.log(`App server is running at port ${process.env.PORT}.`);
-    console.log(`DEBUG: node_env: ${process.env.NODE_ENV}`);
-});
+bootstrap();
