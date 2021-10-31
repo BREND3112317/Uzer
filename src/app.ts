@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 
-import { Database } from './database/database';
 import { AppRoute } from './app.routing';
 
 export class App {
@@ -27,11 +26,6 @@ export class App {
         this.app.use(handler);
     }
 
-    public launchDatabase(): void {
-        const database = new Database();
-        database.connect();
-    }
-
     // @Private Methods
     private setHelmet(): void {
         this.app.use(helmet());
@@ -48,7 +42,7 @@ export class App {
                 `./environments/${process.env.NODE_ENV}.env`
             )
         });
-        console.log(process.env.NODE_ENV, process.env);
+        // console.log(process.env.NODE_ENV, process.env);
     }
 
     private registerRoute(): void {
