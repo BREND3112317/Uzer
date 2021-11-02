@@ -1,6 +1,5 @@
 import mysql, {createConnection} from 'mysql2';
 import * as dotenv from "dotenv";
-dotenv.config();
 
 export const DATABASE_CONFIG = {
     user: process.env.DB_USER,

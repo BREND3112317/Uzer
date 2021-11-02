@@ -3,6 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
+import passport from 'passport';
 
 import { AppRoute } from './app.routing';
 
@@ -14,6 +15,7 @@ export class App {
         this.setEnvironment();
         this.setHelmet();
         this.setCors();
+        this.setPassport();
         this.registerRoute();
     }
 
@@ -43,6 +45,10 @@ export class App {
             )
         });
         // console.log(process.env.NODE_ENV, process.env);
+    }
+
+    private setPassport(): void {
+        passport.initialize();
     }
 
     private registerRoute(): void {

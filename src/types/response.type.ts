@@ -10,3 +10,8 @@ export const enum HttpStatus {
     UNPROCESSABLE = 422,
     INTERNAL_ERROR = 500
 }
+
+export const enum ModelStatus {
+    SUCCESS = 0,
+    ERROR = -1
+}

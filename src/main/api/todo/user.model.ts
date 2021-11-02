@@ -4,7 +4,9 @@ import crypto from 'crypto';
 import { CoreDocument } from "../../../types/model.type";
 import { ModelBase } from "../../../bases/model.base";
 import { db } from "../../../database/database"
+import { ModelStatus } from "../../../types/response.type";
 import { OkPacket, RowDataPacket } from "mysql2";
+import { resolve } from 'path/posix';
 
 const UserSchema = {
     username: {
@@ -38,6 +40,7 @@ export class UserModel extends ModelBase implements UserDocument {
     public username!: string;
     public account!: string;
     public password!: string;
+    public salt!: string;
     public phone!: string;
 
     public createdAt!: Date;
@@ -45,52 +48,82 @@ export class UserModel extends ModelBase implements UserDocument {
 
     constructor(data: any = {}) {
         super();
+        this.id = data.uid;
         this.username = data.username;
         this.account = data.account;
         this.password = data.password;
+        this.salt = data.salt;
         this.phone = data.phone;
+        this.createdAt = data.created_At;
+        this.updatedAt = data.updated_At;
     }
 
     // @Public funciton
-    public async getUser() {
+    public async getUser(){ //: Promise<UserModel> {
+        console.log("Model getUser", this.account);
         const queryString = "SELECT * FROM `User` WHERE `account`=?";
-        db.query(
-            queryString,
-            ["admin"],
-            function(err, results, fields) {
-                
-                console.log("Err", err);
-                console.log("Result", results);
-                return results;
-            }
-        )
-        console.log("getUser", this.username);
+        return new Promise((resolve) => {
+            db.query(
+                queryString,
+                this.account,
+                (err, result) => {
+                    if(err) {
+                        throw err;
+                    }
+
+                    const row = (<RowDataPacket> result)[0];
+                    console.log(row);
+                    resolve(new UserModel(row))
+                }
+            )
+        })
     }
 
     public getUsers(limit: number) {
+        const queryString = "SELECT * FROM `User` WHERE `account`=?";
+        return new Promise((resolve, reject) => {
+            db.query(
+                queryString,
+                this.account,
+                (err, result) => {
+                    if(err) reject(err);
 
+                    const row = (<RowDataPacket> result)[0]
+                    // console.log(row);
+                    resolve(row)
+                    // resolve({data: result, status: ModelStatus.SUCCESS});
+                    // return result;
+                }
+            )
+        })
     }
 
     public async createUser(){
         const {salt, hash} = this.hashPassword(this.password);
         const queryString = "INSERT INTO `User`(`account`, `username`, `password`, `salt`) VALUES (?, ?, ?, ?)";
-        db.query(
-            queryString,
-            [this.account, this.username, hash, salt],
-            function(err, results, fields) {
-                
-                console.log("Err", err);
-                console.log("Result", results);
-                return results;
-            }
-        )
-        // console.log("createUser", this.username, this.account, hash, salt);
+        return new Promise((resolve, reject) => {
+            db.query(
+                queryString,
+                [this.account, this.username, hash, salt],
+                (err, result) => {
+                    if(err){
+                        reject(err);
+                    }
+
+                    resolve(result);
+                }
+            )
+        });
     }
 
     // @Private Function
-    private hashPassword(password: string, salt = crypto.randomBytes(16).toString('hex')): { salt: string, hash: string}{
+    public hashPassword(password: string, salt = crypto.randomBytes(16).toString('hex')): { salt: string, hash: string}{
         const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha256').toString('hex');
-
         return {salt, hash};
+    }
+
+    public verifyPassword(password: string):boolean {
+        const {salt, hash} = this.hashPassword(password, this.salt)
+        return hash == this.password;
     }
 }
