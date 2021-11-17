@@ -26,6 +26,7 @@ export class LocalAuthController extends ControllerBase {
         const token = await this.localAuthSvc.authenticate(req, res, next).then(
             t => {
                 const expiry = new Date();
+                // res.cookie('token', t, {maxAge: expiry.getTime()/1000});
                 res.cookie('token', t, {maxAge: expiry.getTime()/1000, httpOnly: true});
                 return t;
             }
@@ -61,24 +62,24 @@ export class LocalAuthController extends ControllerBase {
 
     public async session(req: Request, res: Response, next: NextFunction): Promise<ResponseObject> {
         console.log("headers.cookie", req.headers.cookie);
-        // console.log("signedCookies", req.signedCookies);
+        console.log("cookies", req.cookies);
 
         const data = await this.verifyToken(req.headers.cookie);
         return this.formatResponse(data, HttpStatus.OK);
     }
 
     //@ Private
-    private async verifyToken(cookie: any): Promise<{_id: number, account: string}>{
+    private async verifyToken(cookie: any): Promise<{uid: number, account: string}>{
         const token = await cookie.split('token=')[1];
         // console.log(JWT.verify((token as any), "secret"));
         return new Promise((resolve, rejects) => {
-            const {_id, account} = (JWT.verify((token as any), "secret") as any);
-            if(!_id || !account){
+            const {uid, account} = (JWT.verify((token as any), "secret") as any);
+            if(!uid || !account){
                 const err = new Error();
                 err.message = "Token 缺少id, account";
                 (err as any).status = HttpStatus.BAD_REQUEST;
             }
-            resolve({_id, account});
+            resolve({uid, account});
         });
     }
 }

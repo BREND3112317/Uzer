@@ -34,7 +34,9 @@ export class App {
     }
 
     private setCors(): void {
-        this.app.use(cors());
+        this.app.use(cors({
+            origin: 'https://codebackend.brlin.org'
+        }));
     }
 
     private setEnvironment(): void {

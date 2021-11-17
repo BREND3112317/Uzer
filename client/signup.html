@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>註冊</title>
+    <style>
+        .app {
+
+        }
+
+        .container {
+
+        }
+    </style>
+
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="Auth">
+                <h1>註冊</h1>
+                <div class="account-group">
+                    帳號
+                    <input id="account" type="account" value="brend">
+                </div>
+                <div class="password-group">
+                    密碼
+                    <input id="password" type="password" value="brend">
+                </div>
+                <div class="password-group">
+                    暱稱
+                    <input id="username" type="username" value="BR">
+                </div>
+
+                <button id="signup-submit" onclick=pre_signup>註冊</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        cSystemCall = {
+            notify: function (content, title) {
+                console.log("[cSystemCall - notify]", title + ": ", content);
+            }
+        }
+        
+        AJAX = {
+            get: function (url, callback) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", url);
+                xmlhttp.onreadystatechange = function () {
+                    if(xmlhttp.readyState != 4) return;
+                                
+                    var data = {};
+                    try {
+                        data = JSON.parse(xmlhttp.responseText);
+                        if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                            if(typeof callback.success !== 'undefined') {
+                                callback.success(data);
+                            }else {
+                                if(typeof callback.failed !== 'undefined') {
+                                    callback.failed(data);
+                                } else {
+                                    cSystemCall.notify(data, "callback.failed is undefined");
+                                }
+                            }
+                        }else{
+                            cSystemCall.notify(data, `ajax GET error status: ${xmlhttp.status}`);
+                            if(typeof callback.failed !== 'undefined') {
+                                callback.failed(data);
+                            }
+                        }
+                    } catch (e) {
+                        console.log("xmlhttp error:", e);
+                        console.log("xmlhttp error response:", xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xmlhttp.send();
+                return xmlhttp;
+            },
+            post: function (url, datajson, callback) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("POST", url);
+                xmlhttp.onreadystatechange = function () {
+                    if(xmlhttp.readyState != 4) return;
+                                
+                    var data = {};
+                    try {
+                        data = JSON.parse(xmlhttp.responseText);
+                        if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                            if(typeof callback.success !== 'undefined') {
+                                callback.success(data);
+                            }else {
+                                if(typeof callback.failed !== 'undefined') {
+                                    callback.failed(data);
+                                } else {
+                                    cSystemCall.notify(data, "callback.failed is undefined");
+                                }
+                            }
+                        }else{
+                            cSystemCall.notify(data, `ajax POST error status: ${xmlhttp.status}`);
+                            if(typeof callback.failed !== 'undefined') {
+                                callback.failed(data);
+                            }
+                            // cSystemCall.notify(data, `status is outside: ${xmlhttp.status}`);
+                        }
+                    } catch (e) {
+                        console.log("[xmlhttp error message]", e);
+                        console.log("xmlhttp error response:", xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                console.log(JSON.stringify(datajson));
+                xmlhttp.send(JSON.stringify(datajson));
+                return xmlhttp;
+            }
+        }
+
+        pre_checkAuth = (() => {
+            AJAX.get(
+                "https://codebackend.brlin.org/auth/local/session",
+                {
+                    success: (data) => {
+                        window.location = "/info";
+                    },
+                    failed: (err) => {
+                        console.log("err", err);
+                    }
+                }
+            )
+        })
+
+        pre_signup = (() => {
+            var Input_account = document.getElementById("account");
+            var Input_password = document.getElementById("password");
+            var Input_username = document.getElementById("username");
+            if(Input_account.value.length < 1){
+                alert("請輸入帳號");
+                return ;
+            }
+            if(Input_password.value.length < 1) {
+                alert("請輸入暱稱");
+                return ;
+            }
+            if(Input_username.value.length < 1){
+                alert("請輸入暱稱");
+                return ;
+            }
+            // console.log("password-value", document.getElementById("password").value);
+            // console.log("test", Input_account.value, Input_password.value);
+            signup(Input_account.value, Input_password.value, Input_username.value);
+        })
+
+        signup = (account, password, username) => {
+            AJAX.post(
+                "https://codebackend.brlin.org/auth/local/signup",
+                {
+                    account: account,
+                    password: password,
+                    username: username
+                },
+                {
+                    success: (data) => {
+                        console.log("success", data);
+                        window.location = "/info";
+                    },
+                    failed: (err) => {
+                        console.log("err", err);
+                        alert(err.message);
+                    }
+                }
+            )
+            // alert(`account: ${account}, password: ${password}`);
+        }
+
+        window.onload=function(){
+            // pre_checkAuth();
+            document.getElementById("signup-submit").onclick = () => {
+                pre_signup();
+            };
+        }
+    </script>
+</body>
+</html>

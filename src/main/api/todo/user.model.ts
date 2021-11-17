@@ -28,7 +28,7 @@ const UserSchema = {
 }
 
 export interface UserDocument extends CoreDocument {
-    id: number;
+    uid: number;
     username: string;
     account: string;
     password: string;
@@ -36,10 +36,11 @@ export interface UserDocument extends CoreDocument {
 }
 
 export class UserModel extends ModelBase implements UserDocument {
-    public id!: number;
+    public uid!: number;
     public username!: string;
     public account!: string;
     public password!: string;
+    public hash!:string;
     public salt!: string;
     public phone!: string;
 
@@ -48,7 +49,7 @@ export class UserModel extends ModelBase implements UserDocument {
 
     constructor(data: any = {}) {
         super();
-        this.id = data.uid;
+        this.uid = data.uid;
         this.username = data.username;
         this.account = data.account;
         this.password = data.password;
@@ -79,7 +80,7 @@ export class UserModel extends ModelBase implements UserDocument {
         })
     }
 
-    public getUsers(limit: number) {
+    public async getUsers(limit: number) {
         const queryString = "SELECT * FROM `User` WHERE `account`=?";
         return new Promise((resolve, reject) => {
             db.query(
@@ -93,6 +94,27 @@ export class UserModel extends ModelBase implements UserDocument {
                     resolve(row)
                     // resolve({data: result, status: ModelStatus.SUCCESS});
                     // return result;
+                }
+            )
+        })
+    }
+
+    public async updateUser(){
+        console.log("Model getUser", this.account);
+        const {salt, hash} = this.hashPassword(this.password, this.salt);
+        const queryString = "UPDATE `User` SET `account`=?,`password`=?,`salt`=?,`username`=?,`phone`=? WHERE `uid`=?";
+        return new Promise((resolve) => {
+            db.query(
+                queryString,
+                [this.account, hash, this.salt, this.username, this.phone, this.uid],
+                (err, result) => {
+                    if(err) {
+                        throw err;
+                    }
+
+                    const row = (<RowDataPacket> result)[0];
+                    console.log(row);
+                    // resolve(new UserModel(row))
                 }
             )
         })

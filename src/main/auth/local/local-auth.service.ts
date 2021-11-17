@@ -40,7 +40,7 @@ export class LocalAuthService {
         const expiry = new Date();
         expiry.setDate(expiry.getDate()+7);
         return JWT.sign({
-            _id: user.id,
+            uid: user.uid,
             account: user.account,
             exp: expiry.getTime()/1000
         }, ("secret")) //todo process.env.JWT_KEY

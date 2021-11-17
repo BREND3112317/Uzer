@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入</title>
+    <style>
+        .app {
+
+        }
+
+        .container {
+
+        }
+    </style>
+
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="Auth">
+                <h1>登入</h1>
+                <div class="account-group">
+                    帳號
+                    <input id="account" type="account" value="brend">
+                </div>
+                <div class="password-group">
+                    密碼
+                    <input id="password" type="password" value="brend">
+                </div>
+                <div class="action-group">
+                    <button id="login-submit" onclick=pre_login>登入</a>
+                </div>
+            </div>
+            <div id="output"></div>
+
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        cSystemCall = {
+            notify: function (content, title) {
+                console.log("[cSystemCall - notify]", title + ": ", content);
+            }
+        }
+        
+        AJAX = {
+            get: function (url, callback) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", url);
+                xmlhttp.onreadystatechange = function () {
+                    if(xmlhttp.readyState != 4) return;
+                                
+                    var data = {};
+                    try {
+                        data = JSON.parse(xmlhttp.responseText);
+                        if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                            if(typeof callback.success !== 'undefined') {
+                                callback.success(data.data);
+                            }else {
+                                if(typeof callback.failed !== 'undefined') {
+                                    callback.failed(data.data);
+                                } else {
+                                    cSystemCall.notify(data, "callback.failed is undefined");
+                                }
+                            }
+                        }else{
+                            cSystemCall.notify(data, `ajax GET error status: ${xmlhttp.status}`);
+                            if(typeof callback.failed !== 'undefined') {
+                                callback.failed(data.data);
+                            }
+                        }
+                    } catch (e) {
+                        console.log("xmlhttp error:", e);
+                        console.log("xmlhttp error response:", xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xmlhttp.send();
+                return xmlhttp;
+            },
+            post: function (url, datajson, callback) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("POST", url);
+                xmlhttp.onreadystatechange = function () {
+                    if(xmlhttp.readyState != 4) return;
+                                
+                    var data = {};
+                    try {
+                        data = JSON.parse(xmlhttp.responseText);
+                        if(xmlhttp.status >= 200 && xmlhttp.status < 300) {
+                            if(typeof callback.success !== 'undefined') {
+                                callback.success(data.data);
+                            }else {
+                                if(typeof callback.failed !== 'undefined') {
+                                    callback.failed(data.data);
+                                } else {
+                                    cSystemCall.notify(data, "callback.failed is undefined");
+                                }
+                            }
+                        }else{
+                            cSystemCall.notify(data, `ajax POST error status: ${xmlhttp.status}`);
+                            if(typeof callback.failed !== 'undefined') {
+                                callback.failed(data.data);
+                            }
+                            // cSystemCall.notify(data, `status is outside: ${xmlhttp.status}`);
+                        }
+                    } catch (e) {
+                        console.log("[xmlhttp error message]", e);
+                        console.log("xmlhttp error response:", xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                console.log(JSON.stringify(datajson));
+                xmlhttp.send(JSON.stringify(datajson));
+                return xmlhttp;
+            }
+        }
+
+        pre_checkAuth = (callback = {}) => {
+            let this_callback = {
+                success: (data) => {
+
+                }, 
+                failed: (err) => {
+                    conosle.log(err);
+                }
+            }
+            if(callback.success !== undefined)this_callback.success = callback.success;
+            if(callback.failed !== undefined)this_callback.failed = callback.failed;
+            checkAuth(this_callback);
+        }
+
+        checkAuth = (callback) => {
+            AJAX.get(
+                "https://codebackend.brlin.org/auth/local/session",
+                {
+                    success: (data) => {
+                        callback.success(data);
+                    },
+                    failed: (err) => {
+                        callback.failed(err);
+                    }
+                }
+            )
+        }
+
+        pre_login = (() => {
+            var Input_account = document.getElementById("account");
+            var Input_password = document.getElementById("password");
+            // console.log("password-value", document.getElementById("password").value);
+            // console.log("test", Input_account.value, Input_password.value);
+            login(Input_account.value, Input_password.value);
+        })
+
+        login = (account, password) => {
+            console.log(account, password);
+            AJAX.post(
+                "https://codebackend.brlin.org/auth/local/signin",
+                {
+                    account: account,
+                    password: password
+                },
+                {
+                    success: (data) => {
+                        console.log("success", data);
+                        window.location = '/info';
+                    },
+                    failed: (err) => {
+                        console.log("err", err);
+                        alert("帳號或密碼錯誤");
+                    }
+                }
+            )
+            // alert(`account: ${account}, password: ${password}`);
+        }
+
+        window.onload=function(){
+            pre_checkAuth({
+                success: function(data) {
+                    window.location = '/info';
+                },
+                failed: function(err) {
+                    console.log(err);
+                }
+            });
+            document.getElementById("login-submit").onclick = () => {
+                pre_login();
+            };
+        }
+    </script>
+</body>
+</html>

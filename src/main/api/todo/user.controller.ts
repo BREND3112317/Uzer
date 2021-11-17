@@ -11,29 +11,34 @@ export class UserController extends ControllerBase {
         return this.formatResponse("test", HttpStatus.OK);
     }
 
-    public async NormalLogin(req: Request): Promise<ResponseObject> {
-        const { account } = req.params; // post: req.body
-        const password = "brend";
+    public async updateUser(req: Request): Promise<ResponseObject> {
+        // todo _id => uid
+        const {uid, account} = await this.verifyToken(req.headers.cookie);
+        
+        // console.log("test", req.params);
+
+        const { username, password, phone } = req.body; // post: req.body
+        console.log("controller updateUser req.body", { account, username, password, phone });
         var user: UserModel = new UserModel({ account });
 
-        await user.getUser().then(
-            (data) => {
-                console.log(data)
-                user = new UserModel(data);
-                console.log(user.verifyPassword(password));
-                if(user.verifyPassword(password)){
-                    
-                }
+        const data = await user.getUser().then(
+            u => {
+                if(username)(u as any).username = username;
+                if(password)(u as any).password = password;
+                if(phone)(u as any).phone = phone;
+                console.log("await getUser then", u);
+                return new UserModel(u) ;
             }
         ).catch(
-            (err) => {
-                console.log(err)
+            err => {
+                throw err;
             }
         );
 
-        // get_user.hashPassword(password, get_user.salt);
+        console.log("controller updateUser", data);
 
-        return this.formatResponse("Normal Login", HttpStatus.OK);
+        return this.formatResponse(data, HttpStatus.OK);
+        // return this.formatResponse(account, HttpStatus.OK);
     }
 
     public async getMySelf(req: Request, res: Response, next: NextFunction) {
@@ -93,5 +98,21 @@ export class UserController extends ControllerBase {
         console.log("controller addUser", data);
         
         return this.formatResponse(data, status);
+    }
+
+    //@ Private
+    private async verifyToken(cookie: any): Promise<{uid: number, account: string}>{
+        const token = await cookie.split('token=')[1];
+        // console.log(JWT.verify((token as any), "secret"));
+        return new Promise((resolve, reject) => {
+            const {uid, account} = (JWT.verify((token as any), "secret") as any);
+            if(!uid || !account){
+                const err = new Error();
+                err.message = "Token 缺少id, account";
+                (err as any).status = HttpStatus.BAD_REQUEST;
+                reject(err);
+            }
+            resolve({uid, account});
+        });
     }
 }

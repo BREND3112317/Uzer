@@ -28,6 +28,10 @@ export class UserRoute extends RouteBase {
         .post( 
             express.json(), 
             this.responseHandler(this.controller.addUser)
+        )
+        .put(
+            express.json(),
+            this.responseHandler(this.controller.updateUser)
         );
     }
 }
