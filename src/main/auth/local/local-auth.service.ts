@@ -97,7 +97,6 @@ export class LocalAuthService {
     }
 
     private verifyPassword(user: UserModel, password: string): boolean {
-        const pair = user.hashPassword(password, user.salt);
-        return pair.hash == user.password;
+        return user.verifyPassword(password);
     }
  }

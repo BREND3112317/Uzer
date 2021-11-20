@@ -102,7 +102,7 @@ export class UserModel extends ModelBase implements UserDocument {
     public async updateUser(){
         console.log("Model getUser", this.account);
         const {salt, hash} = this.hashPassword(this.password, this.salt);
-        const queryString = "UPDATE `User` SET `account`=?,`password`=?,`salt`=?,`username`=?,`phone`=? WHERE `uid`=?";
+        const queryString = "UPDATE `User` SET `account`=?,`hash`=?,`salt`=?,`username`=?,`phone`=? WHERE `uid`=?";
         return new Promise((resolve) => {
             db.query(
                 queryString,
@@ -122,7 +122,7 @@ export class UserModel extends ModelBase implements UserDocument {
 
     public async createUser(){
         const {salt, hash} = this.hashPassword(this.password);
-        const queryString = "INSERT INTO `User`(`account`, `username`, `password`, `salt`) VALUES (?, ?, ?, ?)";
+        const queryString = "INSERT INTO `User`(`account`, `username`, `hash`, `salt`) VALUES (?, ?, ?, ?)";
         return new Promise((resolve, reject) => {
             db.query(
                 queryString,
@@ -146,6 +146,6 @@ export class UserModel extends ModelBase implements UserDocument {
 
     public verifyPassword(password: string):boolean {
         const {salt, hash} = this.hashPassword(password, this.salt)
-        return hash == this.password;
+        return hash == this.hash;
     }
 }

@@ -37,6 +37,8 @@ export class UserController extends ControllerBase {
 
         console.log("controller updateUser", data);
 
+        data.updateUser();
+
         return this.formatResponse(data, HttpStatus.OK);
         // return this.formatResponse(account, HttpStatus.OK);
     }
