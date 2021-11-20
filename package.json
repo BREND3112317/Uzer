@@ -6,6 +6,8 @@
   "scripts": {
     "start": "npm run build && NODE_ENV=production node ./dist/index.js",
     "start:dev": "nodemon --exec NODE_ENV=development ts-node ./src/index.ts",
+    "start-win10": "npm run build && set NODE_ENV==production node ./dist/index.js",
+    "start-win10:dev": "nodemon --exec set NODE_ENV==development ts-node ./src/index.ts",
     "build": "tsc"
   },
   "author": "BREND",
@@ -19,6 +21,7 @@
     "@types/node": "^16.11.4",
     "@types/passport": "^1.0.7",
     "@types/passport-local": "^1.0.34",
+    "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
@@ -35,7 +38,6 @@
     "local": "^0.3.3",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.2",
-    "nodemon": "^2.0.14",
     "passport": "^0.5.0",
     "passport-local": "^1.0.0"
   }
