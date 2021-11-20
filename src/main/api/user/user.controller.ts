@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ResponseObject } from '../../../common/response/response.object';
 import { ControllerBase } from '../../../bases/controller.base';
 import { HttpStatus, ModelStatus } from '../../../types/response.type';
-import { UserModel } from '../todo/user.model';
+import { UserModel } from './user.model';
 
 export class UserController extends ControllerBase {
     public async test(req: Request, res: Response, next: NextFunction): Promise<ResponseObject> {

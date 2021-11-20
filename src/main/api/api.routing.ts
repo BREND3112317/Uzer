@@ -1,7 +1,7 @@
 import JWTGuard from 'express-jwt';
 import { RouteBase } from "../../bases/route.base";
 import { TodoRoute } from "./todo/todo.routing";
-import { UserRoute } from "./todo/user.routing";
+import { UserRoute } from "./user/user.routing";
 import { HttpStatus } from '../../types/response.type';
 
 export class ApiRoute extends RouteBase {

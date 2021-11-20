@@ -15,8 +15,9 @@ export class AppRoute extends RouteBase {
     }
 
     protected registerRoute(): void {
-        // this.apiRoute = new ApiRoute();
-        // this.authRoute = new AuthRoute();
+        this.apiRoute = new ApiRoute();
+        this.authRoute = new AuthRoute();
+        this.viewRoute = new ViewRoute();
         // console.log("api.routing", this.apiRoute);
         this.router.use('/api', this.apiRoute.router);
         this.router.use('/auth', this.authRoute.router);

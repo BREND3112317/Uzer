@@ -1,6 +1,6 @@
 import express from 'express';
 import { RouteBase } from '../../../bases/route.base';
-import { UserController } from './user.controller';
+import { UserController } from '../user/user.controller';
 
 export class TodoRoute extends RouteBase {
 

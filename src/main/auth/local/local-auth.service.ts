@@ -3,7 +3,7 @@ import JWT from "jsonwebtoken";
 import passport from 'passport';
 import { Strategy, VerifyFunction } from "passport-local";
 
-import { UserModel, UserDocument } from "../../../main/api/todo/user.model";
+import { UserModel, UserDocument } from "../../../main/api/user/user.model";
 
 import { LocalAuthDocument } from "./local-auth.model";
 

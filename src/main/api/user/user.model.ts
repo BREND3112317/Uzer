@@ -53,6 +53,7 @@ export class UserModel extends ModelBase implements UserDocument {
         this.username = data.username;
         this.account = data.account;
         this.password = data.password;
+        this.hash = data.hash;
         this.salt = data.salt;
         this.phone = data.phone;
         this.createdAt = data.created_At;
