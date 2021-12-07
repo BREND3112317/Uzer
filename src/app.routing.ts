@@ -22,7 +22,9 @@ export class AppRoute extends RouteBase {
         this.router.use('/api', this.apiRoute.router);
         this.router.use('/auth', this.authRoute.router);
         this.router.use('/view', this.viewRoute.router);
-
+        this.router.use('/', (req, res) => {
+            res.redirect('/view/signin');
+        })
         
         // console.log(__dirname + "../client/static");
         // this.router.use('/static', express.static( __dirname + "/client/static" ));

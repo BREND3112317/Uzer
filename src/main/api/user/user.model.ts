@@ -40,8 +40,8 @@ export class UserModel extends ModelBase implements UserDocument {
     public username!: string;
     public account!: string;
     public password!: string;
-    public hash!:string;
-    public salt!: string;
+    private hash!:string;
+    private salt!: string;
     public phone!: string;
 
     public createdAt!: Date;
@@ -102,12 +102,18 @@ export class UserModel extends ModelBase implements UserDocument {
 
     public async updateUser(){
         console.log("Model getUser", this.account);
-        const {salt, hash} = this.hashPassword(this.password, this.salt);
+        var salt = this.salt
+        var hash = this.hash
+        if(this.password != undefined){
+            var {salt, hash} = this.hashPassword(this.password, this.salt);
+        }
+            
+        console.log(this)
         const queryString = "UPDATE `User` SET `account`=?,`hash`=?,`salt`=?,`username`=?,`phone`=? WHERE `uid`=?";
         return new Promise((resolve) => {
             db.query(
                 queryString,
-                [this.account, hash, this.salt, this.username, this.phone, this.uid],
+                [this.account, hash, salt, this.username, this.phone, this.uid],
                 (err, result) => {
                     if(err) {
                         throw err;
@@ -121,7 +127,29 @@ export class UserModel extends ModelBase implements UserDocument {
         })
     }
 
-    public async createUser(){
+    public async deleteUser() {
+        console.log("Model deleteUser", this.uid);
+        const queryString = "DELETE FROM `User` WHERE `uid`=?";
+        return new Promise((resolve, reject) => {
+            db.query(
+                queryString,
+                [this.uid],
+                (err, result) => {
+                    if(err){
+                        reject(err);
+                    }
+
+                    const OkData = (<OkPacket> result)
+
+                    console.log(OkData);
+
+                    resolve(OkData);
+                }
+            )
+        });
+    }
+
+    public async createUser(): Promise<UserModel>{
         const {salt, hash} = this.hashPassword(this.password);
         const queryString = "INSERT INTO `User`(`account`, `username`, `hash`, `salt`) VALUES (?, ?, ?, ?)";
         return new Promise((resolve, reject) => {
@@ -133,7 +161,9 @@ export class UserModel extends ModelBase implements UserDocument {
                         reject(err);
                     }
 
-                    resolve(result);
+                    const insertID = (<OkPacket> result).insertId;
+
+                    resolve(new UserModel({uid: insertID}));
                 }
             )
         });

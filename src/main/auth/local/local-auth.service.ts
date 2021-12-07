@@ -14,7 +14,7 @@ import { Request, Response, NextFunction } from "express";
 export class LocalAuthService {
     private readonly userModel = new UserModel()
 
-    public async addUser(account:string, username:string, password:string, phone:string) {
+    public async addUser(account:string, username:string, password:string, phone:string): Promise<UserModel> {
         const user = new UserModel({account, username, password, phone});
         const isUsed = await user.createUser()
         .then(userData => {
@@ -24,8 +24,10 @@ export class LocalAuthService {
             (error as any).status = HttpStatus.CONFLICT;
             throw error;
         })
-        console.log(isUsed);
-        return isUsed;
+        return new Promise((resolve, reject) => {
+            console.log("isUsed", isUsed);
+            resolve(isUsed);
+        })
     }
 
     // public generateJWT(user: LocalAuthDocument): string{

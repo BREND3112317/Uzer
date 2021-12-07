@@ -11,14 +11,59 @@ export class UserController extends ControllerBase {
         return this.formatResponse("test", HttpStatus.OK);
     }
 
-    public async updateUser(req: Request): Promise<ResponseObject> {
-        // todo _id => uid
+    public async deleteUser(req: Request, res: Response, next: NextFunction): Promise<ResponseObject> {
+        const {uid, account} = await this.verifyToken(req.headers.cookie);
+        // const data = {uid, account}
+        var user: UserModel = new UserModel({uid})
+        const data = user.deleteUser()
+        res.clearCookie("token");
+        return this.formatResponse(data, HttpStatus.OK);
+    }
+
+    public async resetPassword(req: Request): Promise<ResponseObject> {
         const {uid, account} = await this.verifyToken(req.headers.cookie);
         
         // console.log("test", req.params);
 
-        const { username, password, phone } = req.body; // post: req.body
-        console.log("controller updateUser req.body", { account, username, password, phone });
+        const { password, new_password } = req.body; // post: req.body
+        console.log("controller updateUser req.body", { account, password, new_password });
+        var user: UserModel = new UserModel({ account });
+
+
+        const data = await user.getUser().then(
+            u => {
+                if((u as any).verifyPassword(password)){
+                    // if(password)(u as any).password = new_password;
+                    console.log("verifyPassword", "Password check success");
+                    (u as any).password = new_password;
+                }else{
+                    console.log("verifyPassword", "Password checked Error");
+                    throw Error("Now Password checked Error!")
+                }
+                console.log("await getUser then", u);
+                return new UserModel(u) ;
+            }
+        ).catch(
+            err => {
+                throw err;
+            }
+        );
+
+        // console.log("controller updateUser", data);
+
+        data.updateUser();
+
+        return this.formatResponse(data, HttpStatus.OK);
+        // return this.formatResponse(account, HttpStatus.OK);
+    }
+
+    public async updateUser(req: Request): Promise<ResponseObject> {
+        const {uid, account} = await this.verifyToken(req.headers.cookie);
+        
+        // console.log("test", req.params);
+
+        const { username, password, phone, new_password } = req.body; // post: req.body
+        console.log("controller updateUser req.body", { account, username, password, phone, new_password });
         var user: UserModel = new UserModel({ account });
 
         const data = await user.getUser().then(
@@ -45,7 +90,7 @@ export class UserController extends ControllerBase {
 
     public async getMySelf(req: Request, res: Response, next: NextFunction) {
         const token = await req.headers.cookie?.split('token=')[1];
-        console.log(JWT.verify((token as any), "secret"));
+        console.log("token", JWT.verify((token as any), "secret"));
 
         const account = (JWT.verify((token as any), "secret") as any).account;
         const user = new UserModel({ account });

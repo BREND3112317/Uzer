@@ -32,6 +32,15 @@ export class UserRoute extends RouteBase {
         .put(
             express.json(),
             this.responseHandler(this.controller.updateUser)
+        )
+        .delete(
+            express.json(),
+            this.responseHandler(this.controller.deleteUser)
         );
+        this.router.route('/reset_password')
+        .put( 
+            express.json(), 
+            this.responseHandler(this.controller.resetPassword)
+        )
     }
 }

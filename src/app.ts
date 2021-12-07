@@ -46,7 +46,7 @@ export class App {
                 `./environments/${process.env.NODE_ENV}.env`
             )
         });
-        console.log(`./environments/${process.env.NODE_ENV}.env`, process.env);
+        // console.log(`./environments/${process.env.NODE_ENV}.env`, process.env);
     }
 
     private setPassport(): void {

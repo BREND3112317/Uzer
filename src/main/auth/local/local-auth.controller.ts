@@ -8,6 +8,8 @@ import { LocalAuthService } from "./local-auth.service";
 
 import { ResponseObject } from "../../../common/response/response.object";
 
+import { UserModel, UserDocument } from "../../../main/api/user/user.model";
+
 import { HttpStatus } from "../../../types/response.type";
 
 import passport from 'passport';
@@ -39,14 +41,15 @@ export class LocalAuthController extends ControllerBase {
         const {account, username, password, phone } = req.body;
         console.log("controller signup",{account, username, password, phone });
         const user = await this.localAuthSvc.addUser(account, username, password, phone);
-        // const token = this.localAuthSvc.generateJWT(new UserModel(user));
-        const token = await this.localAuthSvc.authenticate(req, res, next).then(
-            t => {
-                const expiry = new Date();
-                res.cookie('token', t, {maxAge: expiry.getTime()/1000, httpOnly: true});
-                return t;
-            }
-        )
+        // console.log("this.localAuthSvc.addUser", user['insertID']); //todo: 要讓user -> Promise<UserModel>
+        const token = this.localAuthSvc.generateJWT(user);
+        // const token = await this.localAuthSvc.authenticate(req, res, next).then(
+        //     t => {
+        //         const expiry = new Date();
+        //         res.cookie('token', t, {maxAge: expiry.getTime()/1000, httpOnly: true});
+        //         return t;
+        //     }
+        // )
         return this.formatResponse(token, HttpStatus.CREATED);
     }
 
